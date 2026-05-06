@@ -19,73 +19,44 @@ public class suatChieuAiven {
     private myDBConnection mydb;
   
     public List<SuatChieu> getAllSuatChieu() {
-        Connection conn = null;
         List<SuatChieu> danhSachSuatChieu = new ArrayList<>();
-        try {
-            conn = mydb.getOnlyConn();
-
-            // Tạo bảng nếu chưa tồn tại
+        String sql = "SELECT * FROM suatchieu";
+        
+        try (Connection conn = mydb.getOnlyConn()) {
+            if (conn == null) return danhSachSuatChieu;
+            
             createTableIfNotExists(conn);
              
-            Statement sta = conn.createStatement();
-            ResultSet reset = sta.executeQuery("select * from suatchieu");
-            System.out.println("Lấy tất cả dữ liệu suất chiếu từ database: ");
-            while (reset.next()) {
-                String maSuatChieu = reset.getString("maSuatChieu");
-                String maPhim = reset.getString("maPhim");
-                String maPhong = reset.getString("maPhong");
-                String thoiGianBatDauStr = reset.getString("thoiGianBatDau");
-                String thoiGianKetThucStr = reset.getString("thoiGianKetThuc");
+            try (Statement sta = conn.createStatement();
+                 ResultSet reset = sta.executeQuery(sql)) {
                 
-                LocalDateTime thoiGianBatDau = null;
-                LocalDateTime thoiGianKetThuc = null;
-                
-                if (thoiGianBatDauStr != null) {
-                    thoiGianBatDau = LocalDateTime.parse(thoiGianBatDauStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                System.out.println("Lấy tất cả dữ liệu suất chiếu từ database: ");
+                while (reset.next()) {
+                    SuatChieu suatChieu = mapResultSetToSuatChieu(reset);
+                    danhSachSuatChieu.add(suatChieu);
+                    System.out.println("Mã suất chiếu: " + suatChieu.getMaSuatChieu() + " | Mã phim: " + suatChieu.getMaPhim());
                 }
-                if (thoiGianKetThucStr != null) {
-                    thoiGianKetThuc = LocalDateTime.parse(thoiGianKetThucStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                }
-                
-                SuatChieu suatChieu = new SuatChieu();
-                suatChieu.setMaSuatChieu(maSuatChieu);
-                suatChieu.setMaPhim(maPhim);
-                suatChieu.setMaPhong(maPhong);
-                suatChieu.setThoiGianBatDau(thoiGianBatDau);
-                suatChieu.setThoiGianKetThuc(thoiGianKetThuc);
-                
-                danhSachSuatChieu.add(suatChieu);
-                System.out.println("Mã suất chiếu: " + maSuatChieu + " | Mã phim: " + maPhim + " | Mã phòng: " + maPhong);
-
             }
-
-            reset.close();
-            sta.close();
-            conn.close();
         } catch (Exception e) {
-            System.out.println("Lỗi lấy dữ liệu suất chiếu: " + e);
-
+            System.out.println("Lỗi lấy dữ liệu suất chiếu: " + e.getMessage());
             e.printStackTrace();
         }
         return danhSachSuatChieu;
     }
     
     private void createTableIfNotExists(Connection conn) {
-        try {
-            String createTableSQL = "CREATE TABLE IF NOT EXISTS suatchieu (" +
-                "maSuatChieu VARCHAR(50) PRIMARY KEY," +
-                "maPhim VARCHAR(50)," +
-                "maPhong VARCHAR(50)," +
-                "thoiGianBatDau DATETIME," +
-                "thoiGianKetThuc DATETIME," +
-                "FOREIGN KEY (maPhim) REFERENCES phim(maPhim)," +
-                "FOREIGN KEY (maPhong) REFERENCES phongchieu(maPhong)" +
-                ")";
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS suatchieu (" +
+            "maSuatChieu VARCHAR(50) PRIMARY KEY," +
+            "maPhim VARCHAR(50)," +
+            "maPhong VARCHAR(50)," +
+            "thoiGianBatDau DATETIME," +
+            "thoiGianKetThuc DATETIME," +
+            "FOREIGN KEY (maPhim) REFERENCES phim(maPhim)," +
+            "FOREIGN KEY (maPhong) REFERENCES phongchieu(maPhong)" +
+            ")";
             
-            PreparedStatement pstmt = conn.prepareStatement(createTableSQL);
+        try (PreparedStatement pstmt = conn.prepareStatement(createTableSQL)) {
             pstmt.executeUpdate();
-            pstmt.close();
-            
             System.out.println("Bảng suatchieu đã được tạo hoặc đã tồn tại");
         } catch (Exception e) {
             System.out.println("Lỗi tạo bảng suatchieu: " + e.getMessage());
@@ -94,224 +65,177 @@ public class suatChieuAiven {
     }
     
     public SuatChieu getSuatChieuById(String maSuatChieu) {
-        Connection conn = null;
-        SuatChieu suatChieu = null;
-        try {
-            conn = mydb.getOnlyConn();
-
-             
-            Statement sta = conn.createStatement();
-            ResultSet reset = sta.executeQuery("select * from suatchieu where maSuatChieu = '" + maSuatChieu + "'");
-            System.out.println("Tìm suất chiếu theo mã: " + maSuatChieu);
-            if (reset.next()) {
-                String maPhim = reset.getString("maPhim");
-                String maPhong = reset.getString("maPhong");
-                String thoiGianBatDauStr = reset.getString("thoiGianBatDau");
-                String thoiGianKetThucStr = reset.getString("thoiGianKetThuc");
-                
-                LocalDateTime thoiGianBatDau = null;
-                LocalDateTime thoiGianKetThuc = null;
-                
-                if (thoiGianBatDauStr != null) {
-                    thoiGianBatDau = LocalDateTime.parse(thoiGianBatDauStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String sql = "SELECT * FROM suatchieu WHERE maSuatChieu = ?";
+        try (Connection conn = mydb.getOnlyConn();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            if (conn == null) return null;
+            
+            pstmt.setString(1, maSuatChieu);
+            try (ResultSet reset = pstmt.executeQuery()) {
+                if (reset.next()) {
+                    return mapResultSetToSuatChieu(reset);
                 }
-                if (thoiGianKetThucStr != null) {
-                    thoiGianKetThuc = LocalDateTime.parse(thoiGianKetThucStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                }
-                
-                suatChieu = new SuatChieu();
-                suatChieu.setMaSuatChieu(maSuatChieu);
-                suatChieu.setMaPhim(maPhim);
-                suatChieu.setMaPhong(maPhong);
-                suatChieu.setThoiGianBatDau(thoiGianBatDau);
-                suatChieu.setThoiGianKetThuc(thoiGianKetThuc);
-                
-                System.out.println("Tìm thấy suất chiếu: " + maSuatChieu);
-
             }
-
-            reset.close();
-            sta.close();
-            conn.close();
         } catch (Exception e) {
-            System.out.println("Lỗi tìm suất chiếu: " + e);
-
+            System.out.println("Lỗi tìm suất chiếu: " + e.getMessage());
             e.printStackTrace();
         }
-        return suatChieu;
+        return null;
     }
     
     public List<SuatChieu> getSuatChieuByPhim(String maPhim) {
-        Connection conn = null;
         List<SuatChieu> danhSachSuatChieu = new ArrayList<>();
-        try {
-            conn = mydb.getOnlyConn();
-
-             
-            Statement sta = conn.createStatement();
-            ResultSet reset = sta.executeQuery("select * from suatchieu where maPhim = '" + maPhim + "'");
-            System.out.println("Tìm suất chiếu theo phim: " + maPhim);
-            while (reset.next()) {
-                String maSuatChieu = reset.getString("maSuatChieu");
-                String maPhong = reset.getString("maPhong");
-                String thoiGianBatDauStr = reset.getString("thoiGianBatDau");
-                String thoiGianKetThucStr = reset.getString("thoiGianKetThuc");
-                
-                LocalDateTime thoiGianBatDau = null;
-                LocalDateTime thoiGianKetThuc = null;
-                
-                if (thoiGianBatDauStr != null) {
-                    thoiGianBatDau = LocalDateTime.parse(thoiGianBatDauStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String sql = "SELECT * FROM suatchieu WHERE maPhim = ?";
+        try (Connection conn = mydb.getOnlyConn();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            if (conn == null) return danhSachSuatChieu;
+            
+            pstmt.setString(1, maPhim);
+            try (ResultSet reset = pstmt.executeQuery()) {
+                while (reset.next()) {
+                    danhSachSuatChieu.add(mapResultSetToSuatChieu(reset));
                 }
-                if (thoiGianKetThucStr != null) {
-                    thoiGianKetThuc = LocalDateTime.parse(thoiGianKetThucStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                }
-                
-                SuatChieu suatChieu = new SuatChieu();
-                suatChieu.setMaSuatChieu(maSuatChieu);
-                suatChieu.setMaPhim(maPhim);
-                suatChieu.setMaPhong(maPhong);
-                suatChieu.setThoiGianBatDau(thoiGianBatDau);
-                suatChieu.setThoiGianKetThuc(thoiGianKetThuc);
-                
-                danhSachSuatChieu.add(suatChieu);
-                System.out.println("Tìm thấy: " + maSuatChieu + " - Phòng: " + maPhong);
-
             }
-
-            reset.close();
-            sta.close();
-            conn.close();
         } catch (Exception e) {
-            System.out.println("Lỗi tìm suất chiếu theo phim: " + e);
-
+            System.out.println("Lỗi tìm suất chiếu theo phim: " + e.getMessage());
             e.printStackTrace();
         }
         return danhSachSuatChieu;
     }
     
     public List<SuatChieu> getSuatChieuByPhong(String maPhong) {
-        Connection conn = null;
         List<SuatChieu> danhSachSuatChieu = new ArrayList<>();
-        try {
-            conn = mydb.getOnlyConn();
-
-             
-            Statement sta = conn.createStatement();
-            ResultSet reset = sta.executeQuery("select * from suatchieu where maPhong = '" + maPhong + "'");
-            System.out.println("Tìm suất chiếu theo phòng: " + maPhong);
-            while (reset.next()) {
-                String maSuatChieu = reset.getString("maSuatChieu");
-                String maPhim = reset.getString("maPhim");
-                String thoiGianBatDauStr = reset.getString("thoiGianBatDau");
-                String thoiGianKetThucStr = reset.getString("thoiGianKetThuc");
-                
-                LocalDateTime thoiGianBatDau = null;
-                LocalDateTime thoiGianKetThuc = null;
-                
-                if (thoiGianBatDauStr != null) {
-                    thoiGianBatDau = LocalDateTime.parse(thoiGianBatDauStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String sql = "SELECT * FROM suatchieu WHERE maPhong = ?";
+        try (Connection conn = mydb.getOnlyConn();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            if (conn == null) return danhSachSuatChieu;
+            
+            pstmt.setString(1, maPhong);
+            try (ResultSet reset = pstmt.executeQuery()) {
+                while (reset.next()) {
+                    danhSachSuatChieu.add(mapResultSetToSuatChieu(reset));
                 }
-                if (thoiGianKetThucStr != null) {
-                    thoiGianKetThuc = LocalDateTime.parse(thoiGianKetThucStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                }
-                
-                SuatChieu suatChieu = new SuatChieu();
-                suatChieu.setMaSuatChieu(maSuatChieu);
-                suatChieu.setMaPhim(maPhim);
-                suatChieu.setMaPhong(maPhong);
-                suatChieu.setThoiGianBatDau(thoiGianBatDau);
-                suatChieu.setThoiGianKetThuc(thoiGianKetThuc);
-                
-                danhSachSuatChieu.add(suatChieu);
-                System.out.println("Tìm thấy: " + maSuatChieu + " - Phim: " + maPhim);
-
             }
-
-            reset.close();
-            sta.close();
-            conn.close();
         } catch (Exception e) {
-            System.out.println("Lỗi tìm suất chiếu theo phòng: " + e);
-
+            System.out.println("Lỗi tìm suất chiếu theo phòng: " + e.getMessage());
             e.printStackTrace();
         }
         return danhSachSuatChieu;
     }
     
-    // Thêm method tạo suất chiếu mới
     public boolean createSuatChieu(SuatChieu suatChieu) {
-        Connection conn = null;
-        try {
-            conn = mydb.getOnlyConn();
-            Statement sta = conn.createStatement();
+        String sql = "INSERT INTO suatchieu (maSuatChieu, maPhim, maPhong, thoiGianBatDau, thoiGianKetThuc) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = mydb.getOnlyConn();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            String thoiGianBatDauStr = suatChieu.getThoiGianBatDau().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            String thoiGianKetThucStr = suatChieu.getThoiGianKetThuc().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            if (conn == null) return false;
             
-            String sql = "INSERT INTO suatchieu (maSuatChieu, maPhim, maPhong, thoiGianBatDau, thoiGianKetThuc) VALUES " +
-                        "('" + suatChieu.getMaSuatChieu() + "', '" + suatChieu.getMaPhim() + "', '" + suatChieu.getMaPhong() + 
-                        "', '" + thoiGianBatDauStr + "', '" + thoiGianKetThucStr + "')";
+            pstmt.setString(1, suatChieu.getMaSuatChieu());
+            pstmt.setString(2, suatChieu.getMaPhim());
+            pstmt.setString(3, suatChieu.getMaPhong());
             
-            int result = sta.executeUpdate(sql);
-            System.out.println("Tạo suất chiếu thành công: " + result + " dòng được thêm");
+            if (suatChieu.getThoiGianBatDau() != null) {
+                pstmt.setString(4, suatChieu.getThoiGianBatDau().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            } else {
+                pstmt.setNull(4, java.sql.Types.VARCHAR);
+            }
             
-            sta.close();
-            conn.close();
+            if (suatChieu.getThoiGianKetThuc() != null) {
+                pstmt.setString(5, suatChieu.getThoiGianKetThuc().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            } else {
+                pstmt.setNull(5, java.sql.Types.VARCHAR);
+            }
+            
+            int result = pstmt.executeUpdate();
             return result > 0;
         } catch (Exception e) {
-            System.out.println("Lỗi tạo suất chiếu: " + e);
+            System.out.println("Lỗi tạo suất chiếu: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
     
-    // Thêm method cập nhật suất chiếu
     public boolean updateSuatChieu(String maSuatChieu, SuatChieu suatChieuMoi) {
-        Connection conn = null;
-        try {
-            conn = mydb.getOnlyConn();
-            Statement sta = conn.createStatement();
+        String sql = "UPDATE suatchieu SET maPhim = ?, maPhong = ?, thoiGianBatDau = ?, thoiGianKetThuc = ? WHERE maSuatChieu = ?";
+        try (Connection conn = mydb.getOnlyConn();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            String thoiGianBatDauStr = suatChieuMoi.getThoiGianBatDau().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            String thoiGianKetThucStr = suatChieuMoi.getThoiGianKetThuc().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            if (conn == null) return false;
             
-            String sql = "UPDATE suatchieu SET maPhim = '" + suatChieuMoi.getMaPhim() + "', maPhong = '" + suatChieuMoi.getMaPhong() + 
-                        "', thoiGianBatDau = '" + thoiGianBatDauStr + "', thoiGianKetThuc = '" + thoiGianKetThucStr + 
-                        "' WHERE maSuatChieu = '" + maSuatChieu + "'";
+            pstmt.setString(1, suatChieuMoi.getMaPhim());
+            pstmt.setString(2, suatChieuMoi.getMaPhong());
             
-            int result = sta.executeUpdate(sql);
-            System.out.println("Cập nhật suất chiếu thành công: " + result + " dòng được cập nhật");
+            if (suatChieuMoi.getThoiGianBatDau() != null) {
+                pstmt.setString(3, suatChieuMoi.getThoiGianBatDau().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            } else {
+                pstmt.setNull(3, java.sql.Types.VARCHAR);
+            }
             
-            sta.close();
-            conn.close();
+            if (suatChieuMoi.getThoiGianKetThuc() != null) {
+                pstmt.setString(4, suatChieuMoi.getThoiGianKetThuc().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            } else {
+                pstmt.setNull(4, java.sql.Types.VARCHAR);
+            }
+            
+            pstmt.setString(5, maSuatChieu);
+            
+            int result = pstmt.executeUpdate();
             return result > 0;
         } catch (Exception e) {
-            System.out.println("Lỗi cập nhật suất chiếu: " + e);
+            System.out.println("Lỗi cập nhật suất chiếu: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
     
-    // Thêm method xóa suất chiếu
     public boolean deleteSuatChieu(String maSuatChieu) {
-        Connection conn = null;
-        try {
-            conn = mydb.getOnlyConn();
-            Statement sta = conn.createStatement();
+        String sql = "DELETE FROM suatchieu WHERE maSuatChieu = ?";
+        try (Connection conn = mydb.getOnlyConn();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            String sql = "DELETE FROM suatchieu WHERE maSuatChieu = '" + maSuatChieu + "'";
+            if (conn == null) return false;
             
-            int result = sta.executeUpdate(sql);
-            System.out.println("Xóa suất chiếu thành công: " + result + " dòng được xóa");
-            
-            sta.close();
-            conn.close();
+            pstmt.setString(1, maSuatChieu);
+            int result = pstmt.executeUpdate();
             return result > 0;
         } catch (Exception e) {
-            System.out.println("Lỗi xóa suất chiếu: " + e);
+            System.out.println("Lỗi xóa suất chiếu: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
+    }
+
+    private SuatChieu mapResultSetToSuatChieu(ResultSet rs) throws java.sql.SQLException {
+        SuatChieu suatChieu = new SuatChieu();
+        suatChieu.setMaSuatChieu(rs.getString("maSuatChieu"));
+        suatChieu.setMaPhim(rs.getString("maPhim"));
+        suatChieu.setMaPhong(rs.getString("maPhong"));
+        
+        String startStr = rs.getString("thoiGianBatDau");
+        String endStr = rs.getString("thoiGianKetThuc");
+        
+        if (startStr != null && !startStr.isEmpty()) {
+            try {
+                // MySQL might return YYYY-MM-DD HH:MM:SS, but ISO_LOCAL_DATE_TIME expects T separator
+                // Let's use a more flexible approach or replace space with T
+                String normalizedStart = startStr.replace(" ", "T");
+                suatChieu.setThoiGianBatDau(LocalDateTime.parse(normalizedStart, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            } catch (Exception e) {
+                System.err.println("Could not parse start time: " + startStr);
+            }
+        }
+        if (endStr != null && !endStr.isEmpty()) {
+            try {
+                String normalizedEnd = endStr.replace(" ", "T");
+                suatChieu.setThoiGianKetThuc(LocalDateTime.parse(normalizedEnd, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            } catch (Exception e) {
+                System.err.println("Could not parse end time: " + endStr);
+            }
+        }
+        
+        return suatChieu;
     }
 } 

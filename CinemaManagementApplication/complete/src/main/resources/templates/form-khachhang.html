@@ -114,7 +114,7 @@
                   </div>
                   <div class="col-md-6">
                     <div class="mb-3">
-                      <label for="hoTen" class="form-label">
+                      <label for="ten" class="form-label">
                         <i class="fas fa-user me-1"></i>Họ và tên
                         <span class="text-danger">*</span>
                       </label>
@@ -124,6 +124,24 @@
                         id="ten"
                         name="ten"
                         placeholder="Nhập họ và tên"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="tuoi" class="form-label">
+                        <i class="fas fa-calendar-alt me-1"></i>Tuổi
+                        <span class="text-danger">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="tuoi"
+                        name="tuoi"
+                        placeholder="Nhập tuổi"
+                        min="0"
+                        max="150"
                         required
                       />
                     </div>

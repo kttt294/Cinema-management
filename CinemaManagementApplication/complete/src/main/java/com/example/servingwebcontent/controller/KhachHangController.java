@@ -41,43 +41,43 @@ public class KhachHangController {
     }
     
     @PostMapping("/khachhang/create")
-    public String createKhachHang(@ModelAttribute KhachHang khachHang, Model model) {
+    public String createKhachHang(@ModelAttribute KhachHang khachHang, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             if (khachHangDB.createKhachHang(khachHang)) {
-                model.addAttribute("success", "Tạo khách hàng thành công!");
+                redirectAttributes.addFlashAttribute("message", "Tạo khách hàng thành công!");
             } else {
-                model.addAttribute("error", "Lỗi khi tạo khách hàng!");
+                redirectAttributes.addFlashAttribute("error", "Lỗi khi tạo khách hàng!");
             }
         } catch (Exception e) {
-            model.addAttribute("error", "Lỗi hệ thống: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
         return "redirect:/khachhang";
     }
     
     @PostMapping("/khachhang/update")
-    public String updateKhachHang(@RequestParam String CCCD, @ModelAttribute KhachHang khachHang, Model model) {
+    public String updateKhachHang(@RequestParam String CCCD, @ModelAttribute KhachHang khachHang, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             if (khachHangDB.updateKhachHang(CCCD, khachHang)) {
-                model.addAttribute("success", "Cập nhật khách hàng thành công!");
+                redirectAttributes.addFlashAttribute("message", "Cập nhật khách hàng thành công!");
             } else {
-                model.addAttribute("error", "Lỗi khi cập nhật khách hàng!");
+                redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật khách hàng!");
             }
         } catch (Exception e) {
-            model.addAttribute("error", "Lỗi hệ thống: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
         return "redirect:/khachhang";
     }
     
     @PostMapping("/khachhang/delete")
-    public String deleteKhachHang(@RequestParam String CCCD, Model model) {
+    public String deleteKhachHang(@RequestParam String CCCD, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             if (khachHangDB.deleteKhachHang(CCCD)) {
-                model.addAttribute("success", "Xóa khách hàng thành công!");
+                redirectAttributes.addFlashAttribute("message", "Xóa khách hàng thành công!");
             } else {
-                model.addAttribute("error", "Lỗi khi xóa khách hàng!");
+                redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa khách hàng!");
             }
         } catch (Exception e) {
-            model.addAttribute("error", "Lỗi hệ thống: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
         }
         return "redirect:/khachhang";
     }

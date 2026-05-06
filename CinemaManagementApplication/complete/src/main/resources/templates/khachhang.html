@@ -85,11 +85,25 @@
       <!-- Alert Messages -->
       <div
         th:if="${message}"
-        class="alert alert-info alert-dismissible fade show"
+        class="alert alert-success alert-dismissible fade show"
         role="alert"
       >
-        <i class="fas fa-info-circle me-2"></i>
+        <i class="fas fa-check-circle me-2"></i>
         <span th:text="${message}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+
+      <div
+        th:if="${error}"
+        class="alert alert-danger alert-dismissible fade show"
+        role="alert"
+      >
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
         <button
           type="button"
           class="btn-close"
@@ -329,11 +343,11 @@
                       placeholder="Nhập CCCD (12 số)"
                       maxlength="12"
                       required
-                    />
+                    >
                     <div class="form-text">CCCD phải có đúng 12 số</div>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <div class="mb-3">
                     <label for="hoTen" class="form-label">
                       <i class="fas fa-user me-1"></i>Họ và tên
@@ -343,10 +357,27 @@
                       type="text"
                       class="form-control"
                       id="hoTen"
-                      name="hoTen"
+                      name="ten"
                       placeholder="Nhập họ và tên"
                       required
-                    />
+                    >
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="mb-3">
+                    <label for="tuoi" class="form-label">
+                      <i class="fas fa-calendar-alt me-1"></i>Tuổi
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="tuoi"
+                      name="tuoi"
+                      placeholder="Tuổi"
+                      min="0"
+                      required
+                    >
                   </div>
                 </div>
               </div>
@@ -368,7 +399,7 @@
                       type="tel"
                       class="form-control"
                       id="soDienThoai"
-                      name="soDienThoai"
+                      name="sdt"
                       placeholder="Nhập số điện thoại"
                       required
                     />

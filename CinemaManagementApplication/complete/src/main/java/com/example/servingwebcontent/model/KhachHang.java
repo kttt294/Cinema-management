@@ -9,6 +9,12 @@ public class KhachHang {
     private String sdt;
     private String email;
     private String gioiTinh; // Nam, Nu, Khac
+    private String diaChi;
+    private String ngheNghiep;
+    private String ngaySinh;
+    private String soVisa;
+    private String tenDangNhap;
+    private String matKhau;
     private ArrayList<Ve> lichSuDatVe;
 
     private static ArrayList<KhachHang> danhSachKhachHang = new ArrayList<>();
@@ -49,6 +55,24 @@ public class KhachHang {
     
     public String getGioiTinh() { return gioiTinh; }
     public void setGioiTinh(String gioiTinh) { this.gioiTinh = gioiTinh; }
+    
+    public String getDiaChi() { return diaChi; }
+    public void setDiaChi(String diaChi) { this.diaChi = diaChi; }
+    
+    public String getNgheNghiep() { return ngheNghiep; }
+    public void setNgheNghiep(String ngheNghiep) { this.ngheNghiep = ngheNghiep; }
+    
+    public String getNgaySinh() { return ngaySinh; }
+    public void setNgaySinh(String ngaySinh) { this.ngaySinh = ngaySinh; }
+    
+    public String getSoVisa() { return soVisa; }
+    public void setSoVisa(String soVisa) { this.soVisa = soVisa; }
+    
+    public String getTenDangNhap() { return tenDangNhap; }
+    public void setTenDangNhap(String tenDangNhap) { this.tenDangNhap = tenDangNhap; }
+    
+    public String getMatKhau() { return matKhau; }
+    public void setMatKhau(String matKhau) { this.matKhau = matKhau; }
     
     public ArrayList<Ve> getLichSuDatVe() { return lichSuDatVe; }
     public void setLichSuDatVe(ArrayList<Ve> lichSuDatVe) { this.lichSuDatVe = lichSuDatVe; }

@@ -23,29 +23,35 @@ public class myDBConnection {
     private String myDatabasePassword;
 
     public myDBConnection() {
+    }
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
         // Fallback values if properties are not loaded
-        if (myDatabaseURL == null) {
+        if (myDatabaseURL == null || myDatabaseURL.isEmpty()) {
             myDatabaseURL = "jdbc:mysql://avnadmin:AVNS_RE3O2bhYZ_1_6ER7YK7@mysql-14737a33-nglthu-4e05.k.aivencloud.com:17237/defaultdb?ssl-mode=REQUIRED";
         }
-        if (myDatabaseDriver == null) {
+        if (myDatabaseDriver == null || myDatabaseDriver.isEmpty()) {
             myDatabaseDriver = "com.mysql.cj.jdbc.Driver";
         }
-        if (myDatabaseUsername == null) {
+        if (myDatabaseUsername == null || myDatabaseUsername.isEmpty()) {
             myDatabaseUsername = "avnadmin";
         }
-        if (myDatabasePassword == null) {
+        if (myDatabasePassword == null || myDatabasePassword.isEmpty()) {
             myDatabasePassword = "AVNS_RE3O2bhYZ_1_6ER7YK7";
         }
     }
 
+    /**
+     * @deprecated Use getOnlyConn() and handle resources with try-with-resources
+     */
+    @Deprecated
     public Statement getMyConn() {
-        Connection conn = null;
         try {
-            Class.forName(myDatabaseDriver);
-            conn = DriverManager.getConnection(myDatabaseURL, myDatabaseUsername, myDatabasePassword);
-            Statement sta = conn.createStatement();
-            System.out.println("Database connection established successfully");
-            return sta;
+            Connection conn = getOnlyConn();
+            if (conn != null) {
+                return conn.createStatement();
+            }
         } catch (Exception e) {
             System.out.println("Database connection error: " + e.getMessage());
             e.printStackTrace();
