@@ -1,171 +1,71 @@
-# OOP_N05_T3_2025_TRANG_SANG
+# ỨNG DỤNG QUẢN LÝ RẠP PHIM
 
-ỨNG DỤNG QUẢN LÝ RẠP PHIM
+# Hướng dẫn chạy dự án
 
-# Describe and Analyse the Project
+## Yêu cầu hệ thống
 
-Đối tượng:
-- Phim (maPhim, tenPhim, theLoai, thoiLuong, ngonNgu, gioiHanTuoi, moTa)
-- KhachHang (CCCD, ten, tuoi, sdt, email, gioiTinh, lichSuDatVe)
-- PhongChieu (maPhong, tenPhong, soHangGhe, soCotGhe)
-- Ghe (maGhe, hang, cot, maPhong, maSuatChieu, trangThai)
-- Ve (maVe, CCCD, maSuatChieu, maGhe, giaVe, trangThai)
-- SuatChieu (maSuatCHieu, maPhim, maPhong, thoiGianBatDau, thoiGianKetThuc, danhSachGheTrong)
-- Voucher (maVoucher, moTa, phanTramGiamGia, ngayBatDau, ngayKetThuc, soLuongConLai, trangThai)
-- DanhGia (maDanhGia, CCCD, maPhim, soSao, noiDung, thoiGian)
-- HoaDon (maHoaDon, danhSachVe, danhSachDoAn, danhSachVoucher, tongTien, thoiGianThanhToan, phuongThuc, CCCD)
+| Công cụ | Phiên bản tối thiểu |
+|---|---|
+| JDK | 17 trở lên |
+| Maven | 3.6 trở lên (hoặc dùng Maven Wrapper `./mvnw`) |
+| MySQL Server | 8.0 trở lên |
 
-Thành viên:
-1. Kiều Thị Thu Trang, MSV: 24100093 (kttt294)
-2. Trần Minh Sang, MSV : 24100012 (sangzesy)
-3. Nguyễn Lệ Thu (nglthu1979)
+## Bước 1: Cài đặt và khởi động MySQL
 
-# Link youtube Demo ứng dụng: https://youtu.be/W7S2DqOPjI0?si=CooEr-qN0Zy9UM1x
+Đảm bảo MySQL Server đã được cài đặt và đang chạy trên máy (cổng mặc định `3306`).
 
-# UML
+## Bước 2: Tạo Database
 
-**Class Diagram của project**
+Mở MySQL client (MySQL Workbench, DBeaver, hoặc terminal) và chạy lệnh:
 
-<img src = "image/classDiagram.png">
+```sql
+CREATE DATABASE IF NOT EXISTS defaultdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
-**UML CỦA ĐỐI TƯỢNG PHIM**
+> **Lưu ý:** Ứng dụng sử dụng Spring JPA với `ddl-auto=update`, các bảng sẽ được **tự động tạo** khi khởi chạy lần đầu.
 
-**Sơ đồ chức năng**
+## Bước 3: Cấu hình kết nối (nếu cần)
 
-<img src = "image/classPhim.jpg">
+Mở file `CinemaManagementApplication/complete/src/main/resources/application.properties` và chỉnh lại thông tin nếu MySQL của bạn có cấu hình khác:
 
-**Sơ đồ thuật toán**
+```properties
+my.database.url=jdbc:mysql://localhost:3306/defaultdb?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+my.database.username=root
+my.database.password=      # Điền mật khẩu MySQL của bạn vào đây
+```
 
-Create
+## Bước 4: Chạy ứng dụng
 
-<img src = "image/createPhim.jpg">
+### Cách 1: Dùng Maven Wrapper (khuyến nghị)
 
-Update
+```bash
+cd CinemaManagementApplication/complete
+./mvnw spring-boot:run
+```
 
-<img src = "image/updatePhim.jpg">
+> Trên Windows: `mvnw.cmd spring-boot:run`
 
-Read
+### Cách 2: Dùng Maven đã cài sẵn
 
-<img src = "image/readPhim.jpg">
+```bash
+cd CinemaManagementApplication/complete
+mvn spring-boot:run
+```
 
-Delete
+### Cách 3: Chạy từ IDE (IntelliJ IDEA / Eclipse)
 
-<img src = "image/deletePhim.jpg">
+1. Mở project `CinemaManagementApplication/complete` trong IDE.
+2. Tìm class `ServingWebContentApplication.java`.
+3. Click **Run** (hoặc nhấn `Shift + F10` trong IntelliJ).
 
+## Bước 5: Truy cập ứng dụng
 
-**UML CỦA ĐỐI TƯỢNG KHÁCH HÀNG**
+Sau khi ứng dụng khởi động thành công, mở trình duyệt và truy cập:
 
-**Sơ đồ chức năng**
+```
+http://localhost:8080
+```
 
-<img src = "image/oopClass.jpg">
-
-**Sơ đồ thuật toán**
-
-Create
-
-<img src = "image/createKhachHang.png">
-
-Edit
-
-<img src = "image/updateKhachHang.png">
-
-Read
-
-<img src = "image/readKhachHang.png">
-
-Delete
-
-<img src = "image/deleteKhachHang.png">
+---
 
 
-**DANH SÁCH CÁC ACTIVITY DIAGRAM**
-
-Activity Diagram quản lý đặt vé
-
-<img src = "image/activityDiagramDatVe.png">
-
-Activity Diagram quản lý phim
-
-<img src = "image/activityDiagramPhim.png">
-
-Activity Diagram quản lý khách hàng
-
-<img src = "image/activityDiagramKhachHang.png">
-
-Activity Diagram quản lý phòng chiếu
-
-<img src = "image/activityDiagramPhongChieu.png">
-
-Activity Diagram quản lý suất chiếu
-
-<img src = "image/activityDiagramSuatChieu.png">
-
-Activity Diagram quản lý ghế
-
-<img src = "image/activityDiagramGhe.png">
-
-Activity Diagram quản lý đồ ăn
-
-<img src = "image/activityDiagramDoAn.png">
-
-Activity Diagram quản lý hóa đơn
-
-<img src = "image/activityDiagramHoaDon.png">
-
-Activity Diagram quản lý đánh giá
-
-<img src = "image/activityDiagramDanhGia.png">
-
-Activity Diagram quản lý voucher
-
-<img src = "image/activityDiagramVoucher.png">
-
-
-              PRACTICE 02 (Week 2)
-Câu 1: Tiêu đề của bài tập lớn cuối kỳ: Ứng dụng uản lý rạp chiếu phim (CinemaManager)
-
-Câu 2: 03 đối tượng cơ sở cần thiết là:
-1. Phim (đối tượng quản lý thông tin Phim): Đại diện cho 1 bộ phim được chiếu tại rạp. Gồm các thuộc tính:
-  + maPhim (String): mã phim
-  + tenPhim (String): tên phim
-  + theLoai (String): thể loại phim
-  + thoiLuong (int - đơn vị: Phút): thời lượng phim
-  + ngonNgu (String): ngôn ngữ của phim
-  + gioiHanTuoi (int - đơn vị: tuổi): giới hạn độ tuổi xem phim
-  + moTa (String): mô tả phim
-2. SuatChieu (đối tượng quản lý lịch chiếu): lưu thông tin một suất chiếu cụ thể của phim. Gồm:
-  + maSuatChieu (String): mã suất chiếu
-  + phim (Phim): bộ phim được chiếu, có kiểu là class Phim
-  + phongChieu (PhongChieu): phòng chiếu bộ phim đó, có kiểu là class PhongChieu
-  + thoiGianBatDau (LocalDateTime): thời gian bắt đầu chiếu bộ phim
-  + thoiGianKetThuc (LocalDateTime): thời gian kết thúc chiếu bộ phim
-  + danhSachGheTrong (List<Ghe>): danh sách ghế còn trống cho suất chiếu hiện tại
-3. KhachHang (đối tượng quản lý người mua vé): quản lý thông tin khách hàng mua vé. Gồm:
-  + maKH (String): mã khách hàng
-  + tenKH (String): tên khách hàng
-  + tuoi (int): tuổi của khách hàng
-  + sdt (String): số điện thoại của khách hàng
-  + email (String): email của khách hàng
-  + gioiTinh (GioiTinh): giới tính của khách hàng, có kiểu là class GioiTinh
-  + lichSuDatVe (List<Ve>): lịch sử đặt vé của khách hàng này
-
-Câu 3: Cấu trúc folder của project:
-CinemaManager/src/controller/model/Phim.java  
-CinemaManager/src/controller/model/SuatChieu.java  
-CinemaManager/src/controller/model/KhachHang.java  
-CinemaManager/src/controller/model/... (các model khác)  
-CinemaManager/src/App.java  
-CinemaManager/test/testPhim.java  
-CinemaManager/test/testSuatChieu.java  
-CinemaManager/test/testKhachHang.java  
-CinemaManager/README.md  
-
-Câu 4: Các class được viết cho 3 đối tượng chính đã nêu trong Câu 2 là:
-Phim.java: chứa thông tin phim và kiểm tra độ tuổi hợp lệ.
-SuatChieu.java: quản lý thời gian chiếu, ghế trống, liên kết phim.
-KhachHang.java: quản lý thông tin khách và danh sách vé đã đặt.
-
-Câu 5: 3 class kiểm định tương ứng với 3 class ở Câu 4, đặt trong thư mục test:
-testPhim.java: nhập thông tin phim từ bàn phím, kiểm tra độ tuổi.
-testSuatChieu.java: tạo suất chiếu, hiển thị ghế, cập nhật ghế sau khi đặt.
-testKhachHang.java: nhập thông tin khách hàng và in ra kết quả.

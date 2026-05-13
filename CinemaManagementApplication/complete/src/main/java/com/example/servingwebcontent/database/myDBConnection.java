@@ -27,19 +27,17 @@ public class myDBConnection {
 
     @jakarta.annotation.PostConstruct
     public void init() {
-        // Fallback values if properties are not loaded
+        // Validate that required properties are loaded from application.properties
         if (myDatabaseURL == null || myDatabaseURL.isEmpty()) {
-            myDatabaseURL = "jdbc:mysql://avnadmin:AVNS_RE3O2bhYZ_1_6ER7YK7@mysql-14737a33-nglthu-4e05.k.aivencloud.com:17237/defaultdb?ssl-mode=REQUIRED";
+            throw new IllegalStateException("my.database.url is not configured in application.properties");
         }
         if (myDatabaseDriver == null || myDatabaseDriver.isEmpty()) {
             myDatabaseDriver = "com.mysql.cj.jdbc.Driver";
         }
         if (myDatabaseUsername == null || myDatabaseUsername.isEmpty()) {
-            myDatabaseUsername = "avnadmin";
+            throw new IllegalStateException("my.database.username is not configured in application.properties");
         }
-        if (myDatabasePassword == null || myDatabasePassword.isEmpty()) {
-            myDatabasePassword = "AVNS_RE3O2bhYZ_1_6ER7YK7";
-        }
+        // myDatabasePassword can be empty (e.g. local dev with no password)
     }
 
     /**
